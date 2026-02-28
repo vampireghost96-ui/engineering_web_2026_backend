@@ -3,22 +3,16 @@ import ProjectController from '../controllers/ProjectController.js';
 
 const router = express.Router();
 
-// GET all projects
+// GET all projects (public)
 router.get('/', ProjectController.getAll);
 
-// GET projects by category
+// GET projects by category (public)
 router.get('/category/:categoryId', ProjectController.getByCategory);
 
-// GET project by ID
+// GET project by ID (public)
 router.get('/:id', ProjectController.getById);
 
-// POST create new project
-router.post('/', ProjectController.create);
-
-// PUT update project
-router.put('/:id', ProjectController.update);
-
-// DELETE project
-router.delete('/:id', ProjectController.delete);
+// For CREATE/UPDATE/DELETE, use /api/admin/projects instead
+// These endpoints require superadmin authentication
 
 export default router;

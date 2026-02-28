@@ -7,6 +7,30 @@ http://localhost:5000
 
 ---
 
+## 🔐 Authentication Summary
+
+| Operation | Route | Authentication | Example |
+|-----------|-------|-----------------|---------|
+| **GET** (Read) | `/api/services`, `/api/categories`, `/api/projects`, `/api/contact-forms` | ✅ **Public** - No token needed | `GET /api/services` |
+| **POST** (Create) | `/api/admin/services`, `/api/admin/categories`, `/api/admin/projects` | ⚡ **Admin Only** - Token required | `POST /api/admin/services` |
+| **PUT** (Update) | `/api/admin/services/:id`, `/api/admin/categories/:id`, `/api/admin/projects/:id` | ⚡ **Admin Only** - Token required | `PUT /api/admin/services/1` |
+| **DELETE** (Delete) | `/api/admin/services/:id`, `/api/admin/categories/:id`, `/api/admin/projects/:id` | ⚡ **Admin Only** - Token required | `DELETE /api/admin/services/1` |
+| **POST** Contact Form | `/api/contact-forms` | ✅ **Public** - No token needed | `POST /api/contact-forms` |
+| **Admin Login** | `/api/admin/login` | Public | `POST /api/admin/login` |
+
+### ⚠️ Important Rules:
+- ✅ **Only GET requests are public** - Anyone can read services, categories, projects, contact forms
+- ⚡ **All CREATE/UPDATE/DELETE require admin token** - Only superadmin can modify data
+- ✅ **Contact form submission is public** - Anyone can submit (but not delete/edit)
+
+### To perform admin operations:
+1. **Login:** `POST /api/admin/login` with username and password → Get JWT token
+2. **Use token:** Add header `Authorization: Bearer <token>` to all admin requests
+3. **Use `/api/admin/` routes:** All write operations (POST/PUT/DELETE) go through admin routes
+4. **Token expires:** 24 hours
+
+---
+
 ## Table of Contents
 1. [Health Check](#health-check)
 2. [Services](#services)
@@ -107,7 +131,13 @@ http://localhost:5000
 ---
 
 ### Create Service
-**Endpoint:** `POST /api/services`
+**Endpoint:** `POST /api/admin/services` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Request Body:**
 ```json
@@ -152,7 +182,13 @@ http://localhost:5000
 ---
 
 ### Update Service
-**Endpoint:** `PUT /api/services/:id`
+**Endpoint:** `PUT /api/admin/services/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Parameters:**
 - `id` (path) - Service ID (required)
@@ -187,7 +223,12 @@ http://localhost:5000
 ---
 
 ### Delete Service
-**Endpoint:** `DELETE /api/services/:id`
+**Endpoint:** `DELETE /api/admin/services/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
 
 **Parameters:**
 - `id` (path) - Service ID (required)
@@ -259,7 +300,13 @@ http://localhost:5000
 ---
 
 ### Create Category
-**Endpoint:** `POST /api/categories`
+**Endpoint:** `POST /api/admin/categories` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Request Body:**
 ```json
@@ -301,7 +348,13 @@ http://localhost:5000
 ---
 
 ### Update Category
-**Endpoint:** `PUT /api/categories/:id`
+**Endpoint:** `PUT /api/admin/categories/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Parameters:**
 - `id` (path) - Category ID (required)
@@ -332,7 +385,12 @@ http://localhost:5000
 ---
 
 ### Delete Category
-**Endpoint:** `DELETE /api/categories/:id`
+**Endpoint:** `DELETE /api/admin/categories/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
 
 **Parameters:**
 - `id` (path) - Category ID (required)
@@ -461,7 +519,13 @@ http://localhost:5000
 ---
 
 ### Create Project
-**Endpoint:** `POST /api/projects`
+**Endpoint:** `POST /api/admin/projects` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Request Body:**
 ```json
@@ -513,7 +577,13 @@ http://localhost:5000
 ---
 
 ### Update Project
-**Endpoint:** `PUT /api/projects/:id`
+**Endpoint:** `PUT /api/admin/projects/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
+```
 
 **Parameters:**
 - `id` (path) - Project ID (required)
@@ -558,7 +628,12 @@ http://localhost:5000
 ---
 
 ### Delete Project
-**Endpoint:** `DELETE /api/projects/:id`
+**Endpoint:** `DELETE /api/admin/projects/:id` ⚡ **REQUIRES ADMIN TOKEN**
+
+**Headers Required:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
 
 **Parameters:**
 - `id` (path) - Project ID (required)
@@ -785,26 +860,40 @@ curl http://localhost:5000/api/projects
 # Get all contact forms
 curl http://localhost:5000/api/contact-forms
 
-# Create a service
-curl -X POST http://localhost:5000/api/services \
+# === LOGIN FIRST TO GET TOKEN ===
+# Login to get your admin token
+TOKEN=$(curl -s -X POST http://localhost:5000/api/admin/login \
   -H "Content-Type: application/json" \
+  -d '{
+    "username": "superadmin",
+    "password": "Admin@12345"
+  }' | jq -r '.data.token')
+
+# === CREATE/UPDATE/DELETE (REQUIRES TOKEN) ===
+
+# Create a service (admin only)
+curl -X POST http://localhost:5000/api/admin/services \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "title": "Web Design",
     "description": "Professional web design services",
     "image": "https://example.com/design.jpg"
   }'
 
-# Create a category
-curl -X POST http://localhost:5000/api/categories \
+# Create a category (admin only)
+curl -X POST http://localhost:5000/api/admin/categories \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "name": "Commercial",
     "description": "Commercial projects"
   }'
 
-# Create a project
-curl -X POST http://localhost:5000/api/projects \
+# Create a project (admin only)
+curl -X POST http://localhost:5000/api/admin/projects \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "name": "Downtown Plaza",
     "title": "Modern Shopping Complex",
@@ -816,7 +905,7 @@ curl -X POST http://localhost:5000/api/projects \
     "image": "https://example.com/project.jpg"
   }'
 
-# Submit contact form
+# Submit contact form (public)
 curl -X POST http://localhost:5000/api/contact-forms \
   -H "Content-Type: application/json" \
   -d '{
@@ -826,40 +915,48 @@ curl -X POST http://localhost:5000/api/contact-forms \
     "message": "I would like to inquire"
   }'
 
-# Update service
-curl -X PUT http://localhost:5000/api/services/1 \
+# Update service (admin only)
+curl -X PUT http://localhost:5000/api/admin/services/1 \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "title": "Advanced Web Design"
   }'
 
-# Update contact form status
-curl -X PUT http://localhost:5000/api/contact-forms/1/status \
+# Update contact form status (admin only)
+curl -X PUT http://localhost:5000/api/admin/contact-forms/1/status \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{"status": "read"}'
 
-# Delete service
-curl -X DELETE http://localhost:5000/api/services/1
+# Delete service (admin only)
+curl -X DELETE http://localhost:5000/api/admin/services/1 \
+  -H "Authorization: Bearer $TOKEN"
 
-# Delete project
-curl -X DELETE http://localhost:5000/api/projects/1
+# Delete project (admin only)
+curl -X DELETE http://localhost:5000/api/admin/projects/1 \
+  -H "Authorization: Bearer $TOKEN"
 
-# Delete contact form
-curl -X DELETE http://localhost:5000/api/contact-forms/1
+# Delete contact form (admin only)
+curl -X DELETE http://localhost:5000/api/admin/contact-forms/1 \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Using JavaScript/Fetch
 
 ```javascript
-// Get all services
+// ✅ GET - Public (no token needed)
 fetch('http://localhost:5000/api/services')
   .then(res => res.json())
   .then(data => console.log(data));
 
-// Create a service
-fetch('http://localhost:5000/api/services', {
+// ✅ POST - Admin only (token required)
+fetch('http://localhost:5000/api/admin/services', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
   body: JSON.stringify({
     title: 'Mobile App Development',
     description: 'Custom mobile applications',
@@ -869,10 +966,13 @@ fetch('http://localhost:5000/api/services', {
   .then(res => res.json())
   .then(data => console.log(data));
 
-// Update a service
-fetch('http://localhost:5000/api/services/1', {
+// ✅ PUT - Admin only (token required)
+fetch('http://localhost:5000/api/admin/services/1', {
   method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
   body: JSON.stringify({
     title: 'Advanced Mobile App Development'
   })
@@ -880,14 +980,17 @@ fetch('http://localhost:5000/api/services/1', {
   .then(res => res.json())
   .then(data => console.log(data));
 
-// Delete a service
-fetch('http://localhost:5000/api/services/1', {
-  method: 'DELETE'
+// ✅ DELETE - Admin only (token required)
+fetch('http://localhost:5000/api/admin/services/1', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
 })
   .then(res => res.json())
   .then(data => console.log(data));
 
-// Submit contact form
+// ✅ Submit contact form (public, no token)
 fetch('http://localhost:5000/api/contact-forms', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },

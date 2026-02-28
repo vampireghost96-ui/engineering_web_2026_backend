@@ -3,19 +3,13 @@ import CategoryController from '../controllers/CategoryController.js';
 
 const router = express.Router();
 
-// GET all categories
+// GET all categories (public)
 router.get('/', CategoryController.getAll);
 
-// GET category by ID
+// GET category by ID (public)
 router.get('/:id', CategoryController.getById);
 
-// POST create new category
-router.post('/', CategoryController.create);
-
-// PUT update category
-router.put('/:id', CategoryController.update);
-
-// DELETE category
-router.delete('/:id', CategoryController.delete);
+// For CREATE/UPDATE/DELETE, use /api/admin/categories instead
+// These endpoints require superadmin authentication
 
 export default router;

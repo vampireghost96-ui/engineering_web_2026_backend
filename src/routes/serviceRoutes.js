@@ -3,19 +3,13 @@ import ServiceController from '../controllers/ServiceController.js';
 
 const router = express.Router();
 
-// GET all services
+// GET all services (public)
 router.get('/', ServiceController.getAll);
 
-// GET service by ID
+// GET service by ID (public)
 router.get('/:id', ServiceController.getById);
 
-// POST create new service
-router.post('/', ServiceController.create);
-
-// PUT update service
-router.put('/:id', ServiceController.update);
-
-// DELETE service
-router.delete('/:id', ServiceController.delete);
+// For CREATE/UPDATE/DELETE, use /api/admin/services instead
+// These endpoints require superadmin authentication
 
 export default router;
