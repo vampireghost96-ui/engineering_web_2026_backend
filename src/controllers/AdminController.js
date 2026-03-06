@@ -264,9 +264,15 @@ class AdminController {
         });
       }
 
+      // Use uploaded file if available, otherwise use image URL from body
+      let imageUrl = image || null;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
       const result = await pool.query(
         'INSERT INTO services (title, description, image) VALUES ($1, $2, $3) RETURNING *',
-        [title, description, image || null]
+        [title, description, imageUrl]
       );
 
       res.status(201).json({
@@ -295,9 +301,15 @@ class AdminController {
         });
       }
 
+      // Use uploaded file if available, otherwise use image URL from body
+      let imageUrl = image || null;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
       const result = await pool.query(
         'UPDATE services SET title = $1, description = $2, image = $3, updated_at = NOW() WHERE id = $4 RETURNING *',
-        [title, description, image || null, id]
+        [title, description, imageUrl, id]
       );
 
       if (result.rows.length === 0) {
@@ -364,9 +376,15 @@ class AdminController {
         });
       }
 
+      // Use uploaded file if available, otherwise use image URL from body
+      let imageUrl = image || null;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
       const result = await pool.query(
         'INSERT INTO projects (name, title, category_id, location, duration, area, description, image) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-        [name, title, category_id, location || null, duration || null, area || null, description, image || null]
+        [name, title, category_id, location || null, duration || null, area || null, description, imageUrl]
       );
 
       res.status(201).json({
@@ -395,9 +413,15 @@ class AdminController {
         });
       }
 
+      // Use uploaded file if available, otherwise use image URL from body
+      let imageUrl = image || null;
+      if (req.file) {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+
       const result = await pool.query(
         'UPDATE projects SET name = $1, title = $2, category_id = $3, location = $4, duration = $5, area = $6, description = $7, image = $8, updated_at = NOW() WHERE id = $9 RETURNING *',
-        [name, title, category_id, location || null, duration || null, area || null, description, image || null, id]
+        [name, title, category_id, location || null, duration || null, area || null, description, imageUrl, id]
       );
 
       if (result.rows.length === 0) {

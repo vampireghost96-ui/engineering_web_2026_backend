@@ -1,6 +1,7 @@
 import express from 'express';
 import AdminController from '../controllers/AdminController.js';
 import { adminAuthenticateToken, adminAuthorize } from '../middleware/adminAuth.js';
+import upload from '../middleware/fileUpload.js';
 
 const router = express.Router();
 
@@ -20,13 +21,13 @@ router.put('/categories/:id', adminAuthenticateToken, adminAuthorize, AdminContr
 router.delete('/categories/:id', adminAuthenticateToken, adminAuthorize, AdminController.deleteCategory);
 
 // Services Management
-router.post('/services', adminAuthenticateToken, adminAuthorize, AdminController.createService);
-router.put('/services/:id', adminAuthenticateToken, adminAuthorize, AdminController.updateService);
+router.post('/services', adminAuthenticateToken, adminAuthorize, upload.single('image'), AdminController.createService);
+router.put('/services/:id', adminAuthenticateToken, adminAuthorize, upload.single('image'), AdminController.updateService);
 router.delete('/services/:id', adminAuthenticateToken, adminAuthorize, AdminController.deleteService);
 
 // Projects Management
-router.post('/projects', adminAuthenticateToken, adminAuthorize, AdminController.createProject);
-router.put('/projects/:id', adminAuthenticateToken, adminAuthorize, AdminController.updateProject);
+router.post('/projects', adminAuthenticateToken, adminAuthorize, upload.single('image'), AdminController.createProject);
+router.put('/projects/:id', adminAuthenticateToken, adminAuthorize, upload.single('image'), AdminController.updateProject);
 router.delete('/projects/:id', adminAuthenticateToken, adminAuthorize, AdminController.deleteProject);
 
 // Contact Forms Management
